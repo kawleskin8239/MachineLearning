@@ -1,3 +1,4 @@
+# https://www.kaggle.com/datasets/jainilcoder/online-payment-fraud-detection
 import numpy as np
 import pandas as pd
 import torch
@@ -11,7 +12,6 @@ import matplotlib.pyplot as plt
 
 class FraudData(Dataset):
     def __init__(self, train=True):
-        # https://www.kaggle.com/datasets/jainilcoder/online-payment-fraud-detection
         df = pd.read_csv("onlinefraud.csv")
         df = df.sample(n=10000).reset_index(drop=True) # Randomly sample 10,000 rows out of 6.36m
         df.drop(['nameOrig', 'nameDest'], axis=1, inplace=True) # drops id rows of buyer and seller

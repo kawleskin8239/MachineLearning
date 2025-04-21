@@ -1,10 +1,10 @@
+#https://www.kaggle.com/datasets/vishakhdapat/customer-segmentation-clustering
 import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-#https://www.kaggle.com/datasets/vishakhdapat/customer-segmentation-clustering
 df = pd.read_csv("customer_segmentation.csv")
 
 # Sums accepted campaigns into one column
