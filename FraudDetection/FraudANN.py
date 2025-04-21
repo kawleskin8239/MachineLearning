@@ -12,20 +12,20 @@ import matplotlib.pyplot as plt
 
 class FraudData(Dataset):
     def __init__(self, train=True):
+        # https://www.kaggle.com/datasets/jainilcoder/online-payment-fraud-detection
         df = pd.read_csv("onlinefraud.csv")
         df = df.sample(n=10000).reset_index(drop=True) # Randomly sample 10,000 rows out of 6.36m
         df.drop(['nameOrig', 'nameDest'], axis=1, inplace=True) # drops id rows of buyer and seller
 
-        # Uncomment if you'd like to display the string values of categorical data
-        #
-        # # Create a dictionary for category columns
-        # cat_columns = df.select_dtypes("object").columns  # Select all columns of tye object (catergory columns)
-        # df[cat_columns] = df[cat_columns].astype("category")  # cast them to type category
-        # # Make a dictionary of the different categories converted to numbers
-        # cat_dict = {cat_columns[i]: {j: df[cat_columns[i]].cat.categories[j] for j in
-        #                              range(len(df[cat_columns[i]].cat.categories))} for i
-        #             in range(len(cat_columns))}
-        # print(cat_dict)  # Print the dictionary for deciphering the category numbers
+        # Create a dictionary for category columns
+        cat_columns = df.select_dtypes("object").columns  # Select all columns of tye object (catergory columns)
+        df[cat_columns] = df[cat_columns].astype("category")  # cast them to type category
+        # Make a dictionary of the different categories converted to numbers
+        cat_dict = {cat_columns[i]: {j: df[cat_columns[i]].cat.categories[j] for j in
+                                     range(len(df[cat_columns[i]].cat.categories))} for i
+                    in range(len(cat_columns))}
+        # Uncomment if you'd like to print the dictionary
+        #print(cat_dict)
 
         # Replace categories with int values
         df[df.select_dtypes("category").columns] = df[df.select_dtypes("category").columns].apply(lambda x: x.cat.codes)
@@ -126,9 +126,20 @@ cn, cd = trainNN(epochs=100)
 
 X_numpy, y_numpy = cd.to_numpy()
 
-# Runs network on test data and prints the Mean Square Error
+# Runs network on test data and prints the Mean Square Error and accuracy
 cd_test = FraudData(train=False)
 with torch.no_grad():
     y_pred_test = cn(cd_test.X).view(-1)
     test_mse = np.average((cd_test.y.numpy() - y_pred_test.numpy()) ** 2)
     print(f"Test MSE: {test_mse}")
+
+    # Convert predictions to 0 or 1 for fraud detection
+    y_pred_labels = (y_pred_test >= 0.5).float()  # threshold at 0.5
+
+    # number of correct predictions
+    correct = (y_pred_labels == cd_test.y).sum().item()
+
+    # Calculate accuracy
+    accuracy = correct / len(cd_test.y)
+
+    print(f"Test Accuracy: {accuracy:.4f}")
